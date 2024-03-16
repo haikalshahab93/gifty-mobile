@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
 import { createWishlist, getAllUser } from '../Services';
-import { useRoute,useNavigation } from '@react-navigation/native';
-import color from '../Utils/Colors' 
+import { useRoute, useNavigation } from '@react-navigation/native';
+import color from '../Utils/Colors'
 
 
 export default function CreateWishlistScreen() {
@@ -14,20 +14,13 @@ export default function CreateWishlistScreen() {
     const [suggestions, setSuggestions] = useState([]);
     const route = useRoute();
     const { type } = route.params;
-    const navigation = useNavigation(); 
+    const navigation = useNavigation();
 
     const handleSubmit = async () => {
         const result = await createWishlist(title, date, description, type, addCollaborators);
         console.log(result);
         navigation.goBack();
 
-    };
-
-    const handleAddCollaborator = () => {
-        if (typeof newCollaborator === 'string' && newCollaborator.trim() !== '') {
-            setAddCollaborators([...addCollaborators, newCollaborator]);
-            setNewCollaborator('');
-        }
     };
 
     const handleInputChange = async (text) => {
@@ -41,6 +34,18 @@ export default function CreateWishlistScreen() {
             setSuggestions(suggestions);
         } catch (error) {
             console.error('Failed to fetch suggestions:', error);
+        }
+    };
+
+    const handleAddCollaborator = () => {
+        if (typeof newCollaborator === 'string' && newCollaborator.trim() !== '') {
+            // Jika newCollaborator masih berupa string, tambahkan ke addCollaborators
+            setAddCollaborators([...addCollaborators, newCollaborator]);
+            setNewCollaborator('');
+        } else if (typeof newCollaborator === 'object' && newCollaborator.id) {
+            // Jika newCollaborator berupa objek user (dari suggestions), tambahkan id-nya ke addCollaborators
+            setAddCollaborators([...addCollaborators, newCollaborator.id]);
+            setNewCollaborator('');
         }
     };
 
@@ -77,8 +82,7 @@ export default function CreateWishlistScreen() {
                         <Text style={styles.detailText}>Collaborators</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder={addCollaborators}
-                            value={newCollaborator}
+                            placeholder={addCollaborators.join(", ")}
                             onChangeText={handleInputChange}
                         />
                         <TouchableOpacity
@@ -125,7 +129,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     addButton: {
-        backgroundColor:color.PRIMARY,
+        backgroundColor: color.PRIMARY,
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',

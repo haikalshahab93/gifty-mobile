@@ -96,10 +96,12 @@ export const updatePaymentInDatabase = async (paymentMethod,accountHolder,accoun
   }
 };
 
-export const logoutUser = async () => {
+export const logoutUser = async (setIsLoggedIn,setloading,setUser) => {
   try {
-    await AsyncStorage.removeItem('userData');
-    isLoggedIn(false)
+    await AsyncStorage.removeItem('userToken');
+    setUser({})
+    setIsLoggedIn(false)
+    setloading(false)
     return { success: true, message: 'Logout berhasil' };
   } catch (error) {
     console.error('Gagal logout:', error);
@@ -140,7 +142,6 @@ export const checkLoginStatus = async () => {
 export const fetchWishlist = async () => {
   try {
     const userToken = await AsyncStorage.getItem('userToken');
-    console.log(userToken,'test dulu gan muncul nga')
     const response = await axios.get(`${API_URL}api/wishlist`, {
       headers: {
         Authorization: `Bearer ${userToken}`,
@@ -159,7 +160,7 @@ export const createWishlist = async (title, date, description,type,addCollaborat
     console.log(addCollaborators)
     const userToken = await AsyncStorage.getItem('userToken');
     // http://localhost:3000/api/wishlist/create-with-collaborators
-    const response = await axios.post(`${API_URL}api/wishlist`, {
+    const response = await axios.post(`${API_URL}api/wishlist/create-with-collaborators`, {
       title,
       eventDate:date,
       description,
@@ -233,5 +234,17 @@ export const deleteWishlist = async (wishlistId) => {
   } catch (error) {
     console.error('Failed to delete wishlist:', error);
     throw new Error('Failed to delete wishlist');
+  }
+};
+
+export const createPoll = async (wishlistId, title, options) => {
+  try {
+      const response = await axios.post(`${API_URL}/api/poll/createPoll/${wishlistId}`, {
+          title,
+          optionIds:options,
+      });
+      return response.data;
+  } catch (error) {
+      throw new Error('Failed to create poll:', error);
   }
 };

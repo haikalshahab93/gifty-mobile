@@ -19,15 +19,10 @@ const WishlistItemScreen = () => {
                 console.error('Failed to fetch items:', error);
             }
         };
-        const unsubscribe = navigation.addListener('focus', () => {
-            if (route.params?.refresh) {
-                // Panggil kembali fungsi fetchItems untuk memperbarui data wishlist
-                fetchItems();
-            }
-        });
-        return unsubscribe;
-    }, [navigation, route.params?.refresh]);
+        fetchItems();
+    }, []);
 
+    
     const handleAddItem = () => {
         navigation.navigate('CreateItem-Wishlist', { wishlistId: wishlistId });
     };
@@ -50,24 +45,24 @@ const WishlistItemScreen = () => {
 
     return (
         <View style={styles.container}>
-
+            
             <Text style={styles.title}>{wishlisttitle}</Text>
             <Text style={styles.date}>{wishlistdate}</Text>
-
+            
             {items.length === 0 ? (
                 <Text style={styles.subtitle}>No items yet</Text>
             ) : (
                 <>
-                    <TouchableOpacity style={styles.createPollButton} onPress={handleCreatePoll}>
-                        <Text style={styles.createPollButtonText}>Create Poll</Text>
-                    </TouchableOpacity>
-                    <FlatList
-                        data={items}
-                        renderItem={renderGridItem}
-                        keyExtractor={(item) => item.id.toString()}
-                        numColumns={2}
-                        contentContainerStyle={styles.itemList}
-                    />
+                <TouchableOpacity style={styles.createPollButton} onPress={handleCreatePoll}>
+                <Text style={styles.createPollButtonText}>Create Poll</Text>
+            </TouchableOpacity>
+                <FlatList
+                    data={items}
+                    renderItem={renderGridItem}
+                    keyExtractor={(item) => item.id.toString()}
+                    numColumns={2}
+                    contentContainerStyle={styles.itemList}
+                />
                 </>
             )}
             <TouchableOpacity style={styles.addItemContainer} onPress={handleAddItem}>

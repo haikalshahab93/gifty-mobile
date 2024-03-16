@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-native';
 import { createItemWishlist} from '../Services';
 import { useRoute,useNavigation } from '@react-navigation/native';
+import colors from '../Utils/Colors'
 
 export default function CreateItemWishlistScreen() {
     const [productLink, setProductLink] = useState('');
@@ -11,6 +12,9 @@ export default function CreateItemWishlistScreen() {
     const route = useRoute();
     const {wishlistId} = route.params;
     const navigation = useNavigation(); 
+
+
+    // modal
 
     const handleSubmit = async () => {
         const result = await createItemWishlist(productLink, itemName, price, detail, wishlistId);
@@ -74,7 +78,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     addButton: {
-        backgroundColor: 'blue',
+        backgroundColor: colors.PRIMARY,
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',

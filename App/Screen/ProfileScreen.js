@@ -4,12 +4,15 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchWishlist,deleteWishlist } from '../Services';
 import { useNavigation } from '@react-navigation/native';
 import { logoutUser } from '../Services';
+import { useAuth } from '../Context/AuthContext';
 
 export default function ProfileScreen() {
   const [selectedTab, setSelectedTab] = useState('PERSONAL');
   const [modalVisible, setModalVisible] = useState(false);
   const [wishlistData, setWishlistData] = useState([]);
   const navigation = useNavigation();
+  const {setIsLoggedIn,setloading,setUser} = useAuth()  
+  const [selectedWishlistId, setSelectedWishlistId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,22 +20,19 @@ export default function ProfileScreen() {
       setWishlistData(data.data);
     };
     fetchData();
-  }, []);
+  }, [selectedTab, modalVisible]);
 
-  const handleDelete = async(wishlistId) => {
-  
-      const result = await deleteWishlist(wishlistId);
+  const handleDelete = async() => {
+    console.log(selectedWishlistId)
+      const result = await deleteWishlist(selectedWishlistId);
       console.log(result);
     setModalVisible(false);
 };
 
 const handleLogout = async () => {
-  const response = await logoutUser();
-  console.log('test')
+  const response = await logoutUser(setIsLoggedIn,setloading,setUser);
   if (response.success) {
-    navigation.navigate('Auth');
   } else {
-    // Handle error logout
     console.log(response.message);
   }
 };
@@ -42,7 +42,10 @@ const handleLogout = async () => {
       <Image source={require('./../../assets/images/coin.jpg')} style={styles.wishlistImage} />
       <View style={{ flex: 1 }}>
         <Text style={{ textAlign: 'center' }}>{item.title}</Text>
-        <TouchableOpacity style={styles.optionsButton} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity style={styles.optionsButton}  onPress={() => {
+        setSelectedWishlistId(item.id); 
+        setModalVisible(true);
+    }}>
           <Text>...</Text>
         </TouchableOpacity>
       </View>
@@ -112,7 +115,7 @@ const handleLogout = async () => {
           <TouchableOpacity style={styles.modalButton}>
             <Text>Edit Wishlist</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.modalButton} onPress={() => handleDelete(item.id)}>
+          <TouchableOpacity style={styles.modalButton} onPress={handleDelete}>
             <Text>Delete Wishlist</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.modalButton}>
