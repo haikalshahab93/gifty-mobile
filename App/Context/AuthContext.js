@@ -8,6 +8,8 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState({});
   const [history, setHistory] = useState({}); 
 
+
+  
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn,isLoading,setloading,user,setUser,setHistory}}>
       {children}

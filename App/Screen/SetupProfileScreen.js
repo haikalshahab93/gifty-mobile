@@ -6,19 +6,25 @@ import { updateUsernameInDatabase} from '../Services'
 
 export default function SetupProfileScreen() {
   const [username, setUsername] = useState('');
-  const {user,setloading} = useAuth()  
+  const {setloading,user,setUser,setIsLoggedIn} = useAuth()  
   const navigation = useNavigation(); // Initialize navigation
 
   const handleNext = async () => {
-    const token = user.token;
-    const response = await updateUsernameInDatabase(username,token,setloading);
-    if (response && response.data) {
-      console.log(response)
-      navigation.navigate('SetupPayment');
+    const response = await updateUsernameInDatabase(username,setloading,setUser);
+    if (response && response.success && user.hasSetUsername) {
+      console.log(response.message)
     }else{
-      console.log("Login failed");
+      console.log(response.message);
     }
 
+  };
+
+  const handleLogout = async () => {
+    const response = await logoutUser(setIsLoggedIn,setloading,setUser);
+    if (response.success) {
+    } else {
+      console.log(response.message);
+    }
   };
 
   return (
@@ -36,6 +42,9 @@ export default function SetupProfileScreen() {
       />
       <TouchableOpacity style={styles.button} onPress={handleNext}>
         <Text style={styles.buttonText}>Next</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={handleLogout}>
+        <Text style={styles.buttonText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );

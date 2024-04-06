@@ -8,19 +8,17 @@ export default function PaymentScreen() {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [accountHolder, setAccountHolder] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
-  const {setloading} = useAuth()  
+  const {setloading,user,setUser} = useAuth()  
   const navigation = useNavigation(); // Initialize navigation
 
   const handleSave = async () => {
-    const response = await updatePaymentInDatabase(paymentMethod,accountHolder,accountNumber,token,setloading);
-    if (response && response.data) {
-      console.log(response)
-      console.log('test bentar')
-      navigation.navigate('Profile');
+    const response = await updatePaymentInDatabase(paymentMethod,accountHolder,accountNumber,setloading,setUser);
+    console.log(response  )
+    if (response && response.success && user.hasSetPayment) {
+      console.log(response.message)
     }else{
-      console.log("Login failed");
+      console.log(response.message);
     }
-
   };
 
   return (

@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   image: {
-    width: Dimensions.get('window').width - 36,
+    width: Dimensions.get('window').width - 33,
     height: (Dimensions.get('window').width - 36) * 213.9 / 339,
     marginBottom: 20,
   },

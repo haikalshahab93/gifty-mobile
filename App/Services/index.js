@@ -1,13 +1,29 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API_URL = "https://gifted-pink-horse.cyclic.app/"
 
+const API_URL = "http://192.168.1.11:3000/"
+
+
+export const fetchData = async (userId) => {
+  try {
+    const userToken = await AsyncStorage.getItem('userToken');
+    const response = await axios.get(`${API_URL}api/user/get/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+      },
+    });
+    return response.data
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  } finally {
+  }
+};
 
 export const registerUser = async (name, email, password, setloading) => {
   setloading(true);
   try {
-    const response = await axios.post(`${API_URL}api/auth/register`, { name, email, password });
+    const response = await axios.post(`${API_URL}api/auth/register`, {name,email,password});
     const data = response.data;
     console.log(data)
     await AsyncStorage.setItem('users', JSON.stringify(data));
@@ -19,47 +35,44 @@ export const registerUser = async (name, email, password, setloading) => {
   }
 };
 
-export const loginUser = async (email, password, setloading) => {
+export const loginUser = async (email, password, setloading,setUser) => {
   setloading(true);
   try {
     const response = await axios.post(`${API_URL}api/auth/login`, { email, password });
     const data = response.data;
-    console.log(data)
     if (response.status === 200) {
       if (data && data.data.token) {
         await AsyncStorage.setItem('userToken', data.data.token);
+        setUser(response.data.data)
       }
     }
     setloading(false);
-    return data;
+    return { success: true, message: 'Login successfully' };
   } catch (error) {
     setloading(false);
-    console.error('Failed to login user:', error);
     return { success: false, message: 'Failed to login user' };
   }
 };
 
 
-export const updateUsernameInDatabase = async (username, token, setloading) => {
+export const updateUsernameInDatabase = async (username, setloading, setUser) => {
   setloading(true);
-  console.log(username,token);
   try {
+    const userToken = await AsyncStorage.getItem('userToken');
     const response = await axios.put(`${API_URL}api/user/set-username`, { username: username }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${userToken}`,
       },
     });
     if (response.status !== 200) {
       throw new Error('Failed to update username in database');
     }
-    // Update AsyncStorage
-    await AsyncStorage.setItem('username', username);
-
+    // Update hasSetUsername from database
+    setUser(prevUser => ({ ...prevUser, hasSetUsername: true }));
     // Set loading state to false after successful update
     setloading(false);
-
-    return response.data;
+    return { success: true, message: 'Username updated successfully' };
   } catch (error) {
     console.error('Error updating username in database:', error);
     setloading(false);
@@ -67,28 +80,23 @@ export const updateUsernameInDatabase = async (username, token, setloading) => {
   }
 };
 
-export const updatePaymentInDatabase = async (paymentMethod,accountHolder,accountNumber,setloading) => {
+export const updatePaymentInDatabase = async (paymentMethod, accountHolder, accountNumber, setloading,setUser) => {
   setloading(true);
-  console.log(paymentMethod,accountHolder,accountNumber);
+  console.log(paymentMethod, accountHolder, accountNumber);
   try {
     const userToken = await AsyncStorage.getItem('userToken');
-    const response = await axios.post(`${API_URL}api/user/payment-info`, { paymentMethod:paymentMethod,accountHolder:accountHolder,accountNumber:accountNumber}, {
+    const response = await axios.post(`${API_URL}api/user/payment-info`,{ paymentMethod: paymentMethod, accountHolder: accountHolder, accountNumber: accountNumber }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${userToken}`,
       },
     });
-    console.log(response)
     if (response.status !== 200) {
       throw new Error('Failed to update payment in database');
     }
-    // Update AsyncStorage
-    await AsyncStorage.setItem('paymentMethod', paymentMethod,'accountHolder', accountHolder,'accountNumber', accountNumber);
-
-    // Set loading state to false after successful update
+    setUser(payment => ({ ...payment, hasSetPayment:true }));
     setloading(false);
-
-    return response.data;
+    return {success: true,message: 'Payment updated successfully'};
   } catch (error) {
     console.error('Error updating payment in database:', error);
     setloading(false);
@@ -96,7 +104,7 @@ export const updatePaymentInDatabase = async (paymentMethod,accountHolder,accoun
   }
 };
 
-export const logoutUser = async (setIsLoggedIn,setloading,setUser) => {
+export const logoutUser = async (setIsLoggedIn, setloading, setUser) => {
   try {
     await AsyncStorage.removeItem('userToken');
     setUser({})
@@ -119,7 +127,7 @@ export const getAllUser = async (text) => {
         Authorization: `Bearer ${userToken}`,
       },
       params: {
-        text: text 
+        text: text
       }
     });
     return response.data;
@@ -147,7 +155,7 @@ export const fetchWishlist = async () => {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error('Failed to fetch wishlist:', error);
     throw new Error('Failed to fetch wishlist');
@@ -155,24 +163,24 @@ export const fetchWishlist = async () => {
 };
 
 
-export const createWishlist = async (title, date, description,type,addCollaborators) => {
+export const createWishlist = async (title, date, description, type, addCollaborators) => {
   try {
     console.log(addCollaborators)
     const userToken = await AsyncStorage.getItem('userToken');
     // http://localhost:3000/api/wishlist/create-with-collaborators
     const response = await axios.post(`${API_URL}api/wishlist/create-with-collaborators`, {
       title,
-      eventDate:date,
+      eventDate: date,
       description,
       type,
-      collaborators:addCollaborators,
+      collaborators: addCollaborators,
     }, {
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
     console.log(response)
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error('Failed to create wishlist:', error);
     throw new Error('Failed to create wishlist');
@@ -183,21 +191,21 @@ export const createWishlist = async (title, date, description,type,addCollaborat
 export const createItemWishlist = async (productLink, itemName, price, detail, wishlistId) => {
 
   const numericPrice = parseFloat(price);
-  console.log(itemName,detail,numericPrice,productLink,wishlistId)
+  console.log(itemName, detail, numericPrice, productLink, wishlistId)
   try {
     const userToken = await AsyncStorage.getItem('userToken');
     const response = await axios.post(`${API_URL}api/wishlist-item/${wishlistId}`, {
-      name:itemName,
-      details:detail,
-      price:numericPrice,
-      link:productLink,
+      name: itemName,
+      details: detail,
+      price: numericPrice,
+      link: productLink,
     }, {
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
     console.log(response)
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error('Failed to create item wishlist:', error);
     throw new Error('Failed to create item wishlist');
@@ -214,7 +222,7 @@ export const getAllItemWishlist = async (wishlistId) => {
       },
     });
     console.log(response)
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error('Failed to get all items from wishlist:', error);
     throw new Error('Failed to get all items from wishlist');
@@ -230,7 +238,7 @@ export const deleteWishlist = async (wishlistId) => {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    return response.data; 
+    return response.data;
   } catch (error) {
     console.error('Failed to delete wishlist:', error);
     throw new Error('Failed to delete wishlist');
@@ -239,12 +247,12 @@ export const deleteWishlist = async (wishlistId) => {
 
 export const createPoll = async (wishlistId, title, options) => {
   try {
-      const response = await axios.post(`${API_URL}/api/poll/createPoll/${wishlistId}`, {
-          title,
-          optionIds:options,
-      });
-      return response.data;
+    const response = await axios.post(`${API_URL}/api/poll/createPoll/${wishlistId}`, {
+      title,
+      optionIds: options,
+    });
+    return response.data;
   } catch (error) {
-      throw new Error('Failed to create poll:', error);
+    throw new Error('Failed to create poll:', error);
   }
 };

@@ -11,7 +11,7 @@ export default function ProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [wishlistData, setWishlistData] = useState([]);
   const navigation = useNavigation();
-  const {setIsLoggedIn,setloading,setUser} = useAuth()  
+  const {setIsLoggedIn,setloading,setUser,user} = useAuth()  
   const [selectedWishlistId, setSelectedWishlistId] = useState(null);
 
   useEffect(() => {
@@ -60,8 +60,8 @@ const handleLogout = async () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.profileContainer}>
         <Image source={require('./../../assets/images/coin.jpg')} style={[styles.image, styles.circularImage]} />
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.username}>@johndoe</Text>
+        <Text style={styles.name}>{user.name}</Text>
+        <Text style={styles.username}>{user.username}</Text>
         <View style={styles.followContainer}>
           <Text style={styles.followText}>100 Followers</Text>
           <Text style={styles.followText}>50 Following</Text>

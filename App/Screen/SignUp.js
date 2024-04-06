@@ -14,6 +14,7 @@ export default function SignUp() {
   const navigation = useNavigation(); // Initialize navigation
 
     const handleSignUp = async () => {
+      console.log('da')
       const response = await registerUser(name,email,password,setloading);
       if (response && response.data) {
         navigation.navigate('SignIn');
@@ -72,22 +73,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f4f4f4',
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
   },
   input: {
-    width: 218,
-    height: 47,
+    width: 280,
+    height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   button: {
     width: 218,
@@ -120,6 +120,9 @@ const styles = StyleSheet.create({
   },
   checkboxText: {
     fontSize: 12,
+  },
+  signUpText:{
+    color:'#1FAD66'
   },
   rememberText: {
     fontSize: 8,

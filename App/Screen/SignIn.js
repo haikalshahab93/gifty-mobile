@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
-import { loginUser} from '../Services'
+import { loginUser } from '../Services'
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import { useAuth } from '../Context/AuthContext';
 
@@ -10,18 +10,21 @@ export default function SignIn() {
   const [password, setPassword] = useState('');
   const [rememberPassword, setRememberPassword] = useState(false);
   const navigation = useNavigation(); // Initialize navigation
-  const {setIsLoggedIn,setloading,setUser} = useAuth()  
+  const { setIsLoggedIn, setloading, setUser } = useAuth()
 
   const handleSignIn = async () => {
-    const response = await loginUser(email, password,setloading);
-    if (response && response.data && response.data.token ) {
-      setIsLoggedIn(true)
-      setUser(response.data)
+    if (email, password != '') {
+      const response = await loginUser(email, password, setloading,setUser);
+      if (response.success) {
+        setIsLoggedIn(true)
+      } else {  
+        console.log(response.message)
+      }
     }else{
-      console.log("Login failed");
+      console.log('login kosong')
     }
-  };
 
+  }
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign In</Text>
@@ -68,25 +71,24 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f4f4f4',
-    padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 20,
+    color:'#1FAD66'
   },
   input: {
-    width: 218,
-    height: 47,
+    width: 280,
+    height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 10,
+    marginBottom: 20,
   },
   button: {
-    width: 218,
+    width: 280,
     height: 47,
     backgroundColor: '#1FAD66',
     justifyContent: 'center',
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
   rememberContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   checkbox: {
     width: 20,
@@ -115,14 +117,14 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   checkboxText: {
-    fontSize: 12,
+    fontSize: 10,
   },
   rememberText: {
     fontSize: 8,
   },
   signUpText: {
     marginTop: 10,
-    color: 'black',
+    color: '#1FAD66',
     textDecorationLine: 'underline',
   }
 });
