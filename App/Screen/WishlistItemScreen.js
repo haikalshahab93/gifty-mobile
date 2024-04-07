@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Modal, TextI
 import { useNavigation } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { getAllItemWishlist } from '../Services';
+import Icon from 'react-native-vector-icons/Ionicons'
 
 const WishlistItemScreen = () => {
     const navigation = useNavigation();
@@ -18,6 +19,7 @@ const WishlistItemScreen = () => {
         const fetchItems = async () => {
             try {
                 const data = await getAllItemWishlist(wishlistId);
+                console.log(data.data)
                 setItems(data.data);
             } catch (error) {
                 console.error('Failed to fetch items:', error);
@@ -54,33 +56,49 @@ const WishlistItemScreen = () => {
         </TouchableOpacity>
     );
 
+    const renderStaticItem = () => (
+        <TouchableOpacity style={styles.itemContainer}
+            onPress={handleAddItem}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
+                <Icon name="add-outline" />
+                <Text>Add Item</Text>
+            </View>
+        </TouchableOpacity>
+    );
+
     return (
         <View style={styles.container}>
+            <View style={styles.containerText}>
+                <Text style={styles.title}>{wishlisttitle}<Icon style={styles.title} name="people-outline"/></Text>
+                <Text style={styles.date}>{wishlistdate}</Text>
+            </View>
 
-            <Text style={styles.title}>{wishlisttitle}</Text>
-            <Text style={styles.date}>{wishlistdate}</Text>
 
             {items.length === 0 ? (
-                <Text style={styles.subtitle}>No items yet</Text>
+                <View style={{ alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                    <Text style={styles.subtitle}>No items yet</Text>
+                    <TouchableOpacity style={styles.addItemContainer} onPress={handleAddItem}>
+                        <Text style={styles.addItemText}>+ Add Item</Text>
+                    </TouchableOpacity>
+                </View>
             ) : (
                 <>
                     {/* onPress={() => setModalVisible(true)} */}
-                    <TouchableOpacity style={styles.createPollButton} onPress={() => setModalVisible(true)}>
-                        <Text style={styles.createPollButtonText}>Create Poll</Text>
-                    </TouchableOpacity>
+                    <View style={{ alignItems: 'flex-end' }}>
+                        <TouchableOpacity style={styles.createPollButton} onPress={() => setModalVisible(true)}>
+                            <Icon name="hand-right-outline"></Icon>
+                            <Text style={styles.createPollButtonText}>Create Poll</Text>
+                        </TouchableOpacity>
+                    </View>
                     <FlatList
-                        data={items}
-                        renderItem={renderGridItem}
+                        data={[...items, { id: 'static', name: 'name', price: 'harga' }]}
+                        renderItem={({ item }) => (item.id !== 'static' ? renderGridItem({ item }) : renderStaticItem())}
                         keyExtractor={(item) => item.id.toString()}
                         numColumns={2}
                         contentContainerStyle={styles.itemList}
                     />
                 </>
             )}
-            <TouchableOpacity style={styles.addItemContainer} onPress={handleAddItem}>
-                <Text style={styles.addItemText}>+ Add Item</Text>
-            </TouchableOpacity>
-
 
             <View style={styles.modal}></View>
             <Modal
@@ -89,12 +107,14 @@ const WishlistItemScreen = () => {
                 visible={modalVisible}
                 onRequestClose={() => setModalVisible(false)}
             >
-                <View style={styles.modalView}>
+                <View style={[styles.modalView, { position: 'absolute', bottom: 170, left: -10, right: -10 }]}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Title"
-                        onChangeText={(text) => setTitle(text)}
-                        value={title}
+                        placeholder={wishlisttitle}
+                        value={wishlisttitle}
+                        editable={false}
+                        selectTextOnFocus={false}
+                        contextMenuHidden={true}
                     />
                     {options.map((option, index) => (
                         <TextInput
@@ -124,43 +144,47 @@ const WishlistItemScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
+    containerText: {
+        alignItems: 'center'
+    }
+    ,
     title: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
+        textAlign: 'center',
+        marginTop: 10
     },
     date: {
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: 'bold',
-        marginTop: 10,
+        marginTop: 3,
     },
     subtitle: {
-        fontSize: 16,
-        marginTop: 20,
+        fontSize: 28,
     },
     addItemContainer: {
         backgroundColor: '#1FAD66',
         padding: 10,
-        borderRadius: 5,
-        marginTop: 40,
+        borderRadius: 20,
+        marginTop: 20,
+        alignItems: 'center',
+        width: 150,
     },
     addItemText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 18,
     },
     itemList: {
-        flexGrow: 1,
         justifyContent: 'center',
+        alignItems: 'center'
     },
     itemContainer: {
-        backgroundColor: '#f9f9f9',
         borderRadius: 5,
-        padding: 10,
         margin: 5,
-        width: '45%', // 2 items per row
-        alignItems: 'center',
+        width: 153,
+        borderWidth: 1,
+        backgroundColor: 'white'
     },
     itemImage: {
         width: '100%',
@@ -169,22 +193,29 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     itemName: {
+        textAlign: 'center',
         fontSize: 16,
         fontWeight: 'bold',
     },
     itemPrice: {
+        textAlign: 'center',
         fontSize: 14,
         color: '#666',
     },
     createPollButton: {
+        margin: 10,
         backgroundColor: '#1FAD66',
-        padding: 10,
-        borderRadius: 8,
-        marginTop: 20,
+        padding: 5,
+        borderRadius: 10,
+        width: 135,
+        justifyContent: 'space-around',
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     createPollButtonText: {
         color: 'white',
         fontSize: 14,
+        textAlign: 'center'
     },
 
     //modal
@@ -193,6 +224,8 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        position: 'relative',
+        height: 'auto'
     },
     button: {
         borderWidth: 1,

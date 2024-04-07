@@ -17,13 +17,11 @@ export default function CreateItemWishlistScreen() {
     const handleSubmit = async () => {
         const result = await createItemWishlist(productLink, itemName, price, detail, wishlistId);
         console.log(result);
-        navigation.goBack('Wishlist-Item');
+        navigation.goBack('');
     };
     
     return (
         <View style={styles.container}>
-            <Text style={styles.detailText}>Wishlist Detail</Text>
-
             <TextInput
                 style={styles.input}
                 placeholder="Product Link"
@@ -79,9 +77,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
     },
     addButton: {
+        marginTop:10,
         backgroundColor: colors.PRIMARY,
         padding: 20,
-        borderRadius: 5,
+        borderRadius: 8,
         alignItems: 'center',
     },
     buttonText: {
@@ -95,10 +94,5 @@ const styles = StyleSheet.create({
         padding: 10,
         height: 150,
         textAlignVertical: 'top',
-    },
-    detailText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 20,
     },
 });

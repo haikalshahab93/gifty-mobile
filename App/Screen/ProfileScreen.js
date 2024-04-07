@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, FlatList, Modal } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchWishlist,deleteWishlist } from '../Services';
+import { fetchWishlist, deleteWishlist } from '../Services';
 import { useNavigation } from '@react-navigation/native';
 import { logoutUser } from '../Services';
 import { useAuth } from '../Context/AuthContext';
+import Icon from 'react-native-vector-icons/Ionicons'
 
 export default function ProfileScreen() {
   const [selectedTab, setSelectedTab] = useState('PERSONAL');
   const [modalVisible, setModalVisible] = useState(false);
   const [wishlistData, setWishlistData] = useState([]);
   const navigation = useNavigation();
-  const {setIsLoggedIn,setloading,setUser,user} = useAuth()  
-  const [selectedWishlistId, setSelectedWishlistId] = useState(null);
+  const { setIsLoggedIn, setloading, setUser, user } = useAuth()
+  const [selectedWishlistId, setSelectedWishlistId] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,33 +20,35 @@ export default function ProfileScreen() {
       setWishlistData(data.data);
     };
     fetchData();
-  }, [selectedTab, modalVisible]);
+  }, [wishlistData, selectedTab, modalVisible]);
 
-  const handleDelete = async() => {
+  const handleDelete = async () => {
     console.log(selectedWishlistId)
-      const result = await deleteWishlist(selectedWishlistId);
-      console.log(result);
+    const result = await deleteWishlist(selectedWishlistId);
+    console.log(result);
     setModalVisible(false);
-};
+  };
 
-const handleLogout = async () => {
-  const response = await logoutUser(setIsLoggedIn,setloading,setUser);
-  if (response.success) {
-  } else {
-    console.log(response.message);
-  }
-};
+  const handleLogout = async () => {
+    const response = await logoutUser(setIsLoggedIn, setloading, setUser);
+    if (response.success) {
+    } else {
+      console.log(response.message);
+    }
+  };
 
   const renderWishlistItem = ({ item }) => (
     <TouchableOpacity style={styles.wishlistItem} onPress={() => navigation.navigate('Wishlist-Item', { wishlistId: item.id, wishlisttitle: item.title, wishlistdate: item.eventDate })}>
       <Image source={require('./../../assets/images/coin.jpg')} style={styles.wishlistImage} />
-      <View style={{ flex: 1 }}>
-        <Text style={{ textAlign: 'center' }}>{item.title}</Text>
-        <TouchableOpacity style={styles.optionsButton}  onPress={() => {
-        setSelectedWishlistId(item.id); 
-        setModalVisible(true);
-    }}>
-          <Text>...</Text>
+      <View style={{ justifyContent:'space-between', flexDirection:'row', width:153}}>
+        <Text style={{ textAlign: 'left' }}>{item.title}</Text>
+        <TouchableOpacity style={styles.optionsButton} onPress={() => {
+          setSelectedWishlistId(item.id);
+          setModalVisible(true);
+        }}>
+          <Text style={styles.textModal}>
+            <Icon name="ellipsis-vertical-outline"></Icon>
+          </Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -88,19 +90,19 @@ const handleLogout = async () => {
 
       <View style={styles.bottomMenu}>
         <TouchableOpacity style={styles.bottomMenuItem} onPress={() => { /* Handle User */ }}>
-          <Icon name="user" size={20} color="black" />
+          <Icon name="person-outline" size={20} color="green" />
           <Text>User</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomMenuItem} onPress={() => navigation.navigate('Button-Wishlist')}>
-          <Icon name="plus" size={20} color="black" />
+          <Icon name="add-outline" size={20} color="green" />
           <Text>AddList</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomMenuItem} onPress={() => { /* Handle History */ }}>
-          <Icon name="history" size={20} color="black" />
+          <Icon name="documents-outline" size={20} color="green" />
           <Text>History</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomMenuItem} onPress={handleLogout}>
-          <Icon name="history" size={20} color="black" />
+          <Icon name="log-out-outline" size={20} color="green" />
           <Text>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -210,9 +212,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   optionsButton: {
-    position: 'absolute',
-    top: 5,
-    right: 5,
+    top:3,
+    right: 3,
   },
   bottomMenu: {
     position: 'absolute',
@@ -230,6 +231,11 @@ const styles = StyleSheet.create({
   bottomMenuItem: {
     flex: 1,
     alignItems: 'center',
+  },
+  textModal: {
+    textAlignVertical: 'auto',
+    fontWeight: "bold",
+    fontSize: 14
   },
   modalView: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

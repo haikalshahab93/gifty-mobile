@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 
-const API_URL = "http://192.168.1.11:3000/"
+const API_URL = "http://192.168.1.10:3000/"
 
 
 export const fetchData = async (userId) => {
@@ -121,8 +121,7 @@ export const logoutUser = async (setIsLoggedIn, setloading, setUser) => {
 export const getAllUser = async (text) => {
   try {
     const userToken = await AsyncStorage.getItem('userToken');
-    const response = await axios.get(`${API_URL}api/user/get
-    `, {
+    const response = await axios.get(`${API_URL}api/user/get`,{
       headers: {
         Authorization: `Bearer ${userToken}`,
       },

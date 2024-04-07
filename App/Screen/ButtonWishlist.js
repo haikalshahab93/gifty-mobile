@@ -54,13 +54,13 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   button: {
     flexDirection: 'row',
-    padding: 25,
+    padding: 20,
     borderRadius: 5,
     marginVertical: 5,
     width: '100%',
@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   icon: {
-    width: 40,
-    height: 22,
+    width: 30,
+    height: 30,
   },
 });
 

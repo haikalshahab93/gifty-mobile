@@ -3,7 +3,7 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity } from 'react-nativ
 import { createWishlist, getAllUser } from '../Services';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import color from '../Utils/Colors'
-
+import Icon from 'react-native-vector-icons/Ionicons'
 
 export default function CreateWishlistScreen() {
     const [title, setTitle] = useState('');
@@ -18,8 +18,7 @@ export default function CreateWishlistScreen() {
 
     const handleSubmit = async () => {
         const result = await createWishlist(title, date, description, type, addCollaborators);
-        console.log(result);
-        navigation.goBack();
+        navigation.replace('Profile');
 
     };
 
@@ -44,26 +43,28 @@ export default function CreateWishlistScreen() {
             setNewCollaborator('');
         } else if (typeof newCollaborator === 'object' && newCollaborator.id) {
             // Jika newCollaborator berupa objek user (dari suggestions), tambahkan id-nya ke addCollaborators
-            setAddCollaborators([...addCollaborators, newCollaborator.id]);
+            setAddCollaborators([...addCollaborators, newCollaborator.id,newCollaborator.username]);
             setNewCollaborator('');
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.detailText}>Wishlist Detail</Text>
+            <Text>Title</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Title"
                 value={title}
                 onChangeText={setTitle}
             />
+            <Text>Event Date</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Date(yyyy-mm-dd)"
                 value={date}
                 onChangeText={setDate}
             />
+            <Text>Description</Text>
             <TextInput
                 style={styles.textArea}
                 multiline
@@ -91,13 +92,18 @@ export default function CreateWishlistScreen() {
                         >
                             <Text style={styles.buttonText}>Add Collaborator</Text>
                         </TouchableOpacity>
-                        {suggestions.map((suggestion, index) => (
+                       
+
+                        {suggestions.length>0 && suggestions.map((suggestion, index) => (
                             <TouchableOpacity
                                 key={index}
                                 style={styles.input}
                                 onPress={() => setNewCollaborator(suggestion)}
                             >
+                                <View style={styles.addUser}>
+                                <Icon name="person-circle-outline" size={30} ></Icon>
                                 <Text>{suggestion.username}</Text>
+                                </View>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -127,12 +133,15 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginBottom: 10,
         paddingHorizontal: 10,
+        justifyContent:'center'
     },
     addButton: {
         backgroundColor: color.PRIMARY,
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
+        marginTop:10
+
     },
     buttonText: {
         color: 'white',
@@ -146,9 +155,10 @@ const styles = StyleSheet.create({
         height: 150,
         textAlignVertical: 'top',
     },
-    detailText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
+    addUser:{
+        flexDirection:'row',
+        justifyContent:'flex-start',
+        alignItems:"center",
+
+    }
 });
